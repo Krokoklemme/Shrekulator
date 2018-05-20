@@ -16,16 +16,19 @@
 
 namespace Shrekulator
 {
-    using System.Windows;
-
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public struct Unit
     {
-        public MainWindow()
+        public string DisplayName { get; set; }
+        public string UnitSymbol { get; set; }
+        public decimal ValueInShreks { get; set; }
+
+        private Unit(string displayName, string unitSymbol, decimal valueInShreks)
         {
-            InitializeComponent();
+            DisplayName = displayName;
+            UnitSymbol = unitSymbol;
+            ValueInShreks =  valueInShreks;
         }
+
+        public static Unit Define(string name, string symbol, decimal value) => new Unit(name, symbol, value);
     }
 }
