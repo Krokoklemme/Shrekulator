@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="Helpers.cs" />
     <Compile Include="Unit.cs" />
+    <Compile Include="ViewModels\ConverterInterface.ViewModel.cs" />
     <Page Include="ConverterInterface.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

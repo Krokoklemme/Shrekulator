@@ -16,19 +16,19 @@
 
 namespace Shrekulator
 {
-    public struct Unit
+    public class Unit
     {
         public string DisplayName { get; set; }
-        public string UnitSymbol { get; set; }
+        public string CurrencySymbol { get; set; }
         public decimal ValueInShreks { get; set; }
 
-        private Unit(string displayName, string unitSymbol, decimal valueInShreks)
+        private Unit(string displayName, string currency, decimal valueInShreks)
         {
             DisplayName = displayName;
-            UnitSymbol = unitSymbol;
-            ValueInShreks =  valueInShreks;
+            CurrencySymbol = currency;
+            ValueInShreks = valueInShreks;
         }
 
-        public static Unit Define(string name, string symbol, decimal value) => new Unit(name, symbol, value);
+        public static Unit Define(string name, string currency, decimal value) => new Unit(name, currency, value);
     }
 }

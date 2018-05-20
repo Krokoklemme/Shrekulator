@@ -3,16 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Shrekulator"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <UserControl.Resources>
-        <Style TargetType="TextBox">
-            <EventSetter Event="TextChanged" Handler="OnTextChanged" />
-            <EventSetter Event="TextChanged" Handler="WaterMarkedTextBox_TextChanged" />
-        </Style>
-    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -24,21 +17,26 @@
         <GroupBox Grid.Row="0" Grid.Column="0" Header="{Binding GroupingTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid x:Name="WatermarkWrapper" Margin="3">
-                    <TextBox x:Name="WaterMarkedTextBox" Margin="3,0,3,0" Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock IsHitTestVisible="False" Text="{Binding WatermarkText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"
-                               HorizontalAlignment="Left" Margin="3,0,3,0" Foreground="DarkGray"
-                               Visibility="{Binding WatermarkVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    </TextBlock>
+                    <TextBox x:Name="WaterMarkedTextBox" Margin="3,0,3,0" Text="{Binding Text}" />
+                    <TextBlock IsHitTestVisible="False" Text="{Binding WatermarkText}" VerticalAlignment="Center"
+                               HorizontalAlignment="Center" Margin="3,0,3,0" Foreground="{Binding Foreground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               Visibility="{Binding WatermarkVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
+                
                 <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Stretch">
-                    <Button Content="{Binding ButtonContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,3,2,3" HorizontalAlignment="Left" Click="ButtonClick" />
-                    <ComboBox SelectedIndex="0" Margin="0,3,2,3" HorizontalAlignment="Right" SelectionChanged="ComboBoxSelectionChanged">
-                        <ComboBoxItem Content="asdfgon" />
-                        <ComboBoxItem Content="asdfgon" />
-                        <ComboBoxItem Content="asdfgon" />
-                    </ComboBox>
+                    <Button Content="{Binding ButtonContent}" Margin="0,3,2,3" Padding="3" HorizontalAlignment="Left" Click="ButtonClick" />
+
+                    <ComboBox Margin="0,3,2,3" HorizontalAlignment="Right"
+                              SelectionChanged="ComboBoxSelectionChanged"
+                              SelectedIndex="{Binding SelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              ItemsSource="{Binding ComboBoxItemSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValue="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              DisplayMemberPath="{Binding DisplayMemberPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="{Binding SelectedValuePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              />
                 </StackPanel>
-                <TextBlock Text="{Binding ResText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="3" HorizontalAlignment="Center" />
+
+                <TextBlock Text="{Binding ResultText}" Margin="3" HorizontalAlignment="Center" />
             </StackPanel>
         </GroupBox>
     </Grid>

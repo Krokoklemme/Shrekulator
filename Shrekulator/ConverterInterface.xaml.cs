@@ -17,16 +17,24 @@
 namespace Shrekulator
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Data;
+    using System.Windows.Media;
     using static Helpers;
 
     /// <summary>
     /// Interaction logic for ConverterInterface.xaml
     /// </summary>
-    public partial class ConverterInterface : UserControl
+    public sealed partial class ConverterInterface : UserControl
     {
+        // used to determine whether we want to convert to or from inferior units
+        private bool inShrekMode = true;
+
         private enum Props
         {
             GroupTitle,
@@ -35,6 +43,13 @@ namespace Shrekulator
             WatermarkShow,
             BtnContent,
             ResText,
+            Items,
+            SelVal,
+            SelIdx,
+            DispMemPath,
+            SelValPath,
+            FgClr,
+            BgClr,
         }
 
         private static readonly Dictionary<Props, DependencyProperty> props = new Dictionary<Props, DependencyProperty>
@@ -45,78 +60,122 @@ namespace Shrekulator
             [Props.WatermarkShow] = DepPropReg<Visibility, ConverterInterface>(nameof(WatermarkVisibility)),
             [Props.BtnContent] = DepPropReg<object, ConverterInterface>(nameof(ButtonContent), string.Empty),
             [Props.ResText] = DepPropReg<string, ConverterInterface>(nameof(ResultText)),
+            [Props.Items] = DepPropReg<IEnumerable, ConverterInterface>(nameof(ComboBoxItemSource)),
+            [Props.SelVal] = DepPropReg<Unit, ConverterInterface>(nameof(SelectedValue)),
+            [Props.SelIdx] = DepPropReg<int, ConverterInterface>(nameof(SelectedIndex)),
+            [Props.DispMemPath] = DepPropReg<string, ConverterInterface>(nameof(DisplayMemberPath)),
+            [Props.SelValPath] = DepPropReg<string, ConverterInterface>(nameof(SelectedValuePath)),
         };
 
         public string GroupingTitle
         {
-            get { return (string)GetValue(props[Props.GroupTitle]); }
-            set { SetValue(props[Props.GroupTitle], value); }
+            get =>  (string)GetValue(props[Props.GroupTitle]);
+            set => SetValue(props[Props.GroupTitle], value);
         }
 
         public string WatermarkText
         {
-            get { return (string)GetValue(props[Props.WatermarkText]); }
-            set { SetValue(props[Props.WatermarkText], value); }
+            get =>  (string)GetValue(props[Props.WatermarkText]);
+            set => SetValue(props[Props.WatermarkText], value);
         }
 
         public string Text
         {
-            get { return (string)GetValue(props[Props.Text]); }
-            set { SetValue(props[Props.Text], value); }
+            get => (string)GetValue(props[Props.Text]);
+            set => SetValue(props[Props.Text], value);
         }
 
         public Visibility WatermarkVisibility
         {
-            get { return (Visibility)GetValue(props[Props.WatermarkShow]); }
-            set { SetValue(props[Props.WatermarkShow], value); }
+            get =>  (Visibility)GetValue(props[Props.WatermarkShow]);
+            set => SetValue(props[Props.WatermarkShow], value);
         }
 
         public object ButtonContent
         {
-            get { return GetValue(props[Props.BtnContent]); }
-            set { SetValue(props[Props.BtnContent], value); }
+            get =>  GetValue(props[Props.BtnContent]);
+            set => SetValue(props[Props.BtnContent], value);
         }
 
         public string ResultText
         {
-            get { return (string)GetValue(props[Props.ResText]); }
-            set { SetValue(props[Props.ResText], value); }
+            get =>  (string)GetValue(props[Props.ResText]);
+            set => SetValue(props[Props.ResText], value);
+        }
+
+        public IEnumerable ComboBoxItemSource
+        {
+            get => (IEnumerable)GetValue(props[Props.Items]);
+            set => SetValue(props[Props.Items], value);
+        }
+
+        public Unit SelectedValue
+        {
+            get => (Unit)GetValue(props[Props.SelVal]);
+            set => SetValue(props[Props.SelVal], value);
+        }
+
+        public int SelectedIndex
+        {
+            get => (int)GetValue(props[Props.SelIdx]);
+            set => SetValue(props[Props.SelIdx], value);
+        }
+
+        public string DisplayMemberPath
+        {
+            get => (string)GetValue(props[Props.DispMemPath]);
+            set => SetValue(props[Props.DispMemPath], value);
+        }
+
+        public string SelectedValuePath
+        {
+            get => (string)GetValue(props[Props.SelValPath]);
+            set => SetValue(props[Props.SelValPath], value);
         }
 
         public event TextChangedEventHandler TextChanged;
 
         private void OnTextChanged(object sender, TextChangedEventArgs arg)
         {
-            UpdateComponentLabels();
             TextChanged?.Invoke(sender, arg);
-        }
 
-        public event EventHandler SomethingHappened;
+            if (!string.IsNullOrWhiteSpace(Text))
+            {
+                if (decimal.TryParse(Text, out var value))
+                {
+                    var unit = SelectedValue;
+
+                    var res = value * unit.ValueInShreks;
+
+                    ResultText = string.Format("{0} {1}", res, unit.CurrencySymbol);
+                }
+                else
+                {
+
+                }
+            }
+        }
 
         public ConverterInterface()
         {
             // this'll make the hints hide and appear again
             TextChanged += (o, e) => WatermarkVisibility = (string.IsNullOrEmpty(Text) ? Visibility.Visible : Visibility.Hidden);
+
             InitializeComponent();
-        }
-
-        private void UpdateComponentLabels()
-        {
-
         }
 
         private void ComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            UpdateComponentLabels();
         }
 
         private void ButtonClick(object sender, RoutedEventArgs e)
         {
+            ResultText = Text;
+
             if (!string.IsNullOrWhiteSpace(ResultText))
             {
                 if (decimal.TryParse(ResultText.Split(' ')[0] ?? string.Empty, out var number))
                 {
-
                 }
                 else
                 {

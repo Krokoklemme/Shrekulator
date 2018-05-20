@@ -18,13 +18,7 @@ namespace Shrekulator
 {
     using Shrekulator.Container;
     using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
     using System.Windows;
-    using System.Windows.Threading;
     using static Helpers.ShrekUnitType;
 
     internal static class Helpers
@@ -33,7 +27,6 @@ namespace Shrekulator
 
         public static DependencyProperty DepPropReg<Type, Target>(string name, object defaultValue) => DependencyProperty.Register(name, typeof(Type), typeof(Target), new PropertyMetadata(defaultValue));
 
-        private static DispatcherTimer _fetchScheduler;
         private static object _lockObject;
 
         public enum ShrekUnitType
@@ -46,34 +39,6 @@ namespace Shrekulator
 
         public static TrackableMap<ShrekUnitType, decimal> ShrekMap { get; }
 
-        internal static string AppData { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
-        internal static string LangDir { get; } = Path.Combine(AppData, "lang");
-
-        private static void FetchPrice(object sender, EventArgs e) =>
-            Task.Run(async () =>
-            {
-                const string _priceTagBeginningTag = "Your price for this item is $";
-
-                using (var wc = new WebClient())
-                {
-                    var res = await wc.DownloadStringTaskAsync("https://www.bestbuy.com/site/shrek-includes-digital-copy-blu-ray-dvd-2001/9660139.p");
-                    var startingIndex = res.IndexOf(_priceTagBeginningTag) + _priceTagBeginningTag.Length;
-
-                    var priceAsString = string.Concat(res.Substring(startingIndex).TakeWhile(ch => char.IsDigit(ch) || ch == '.').ToArray());
-
-                    if (decimal.TryParse(priceAsString, out var price))
-                    {
-                        return price;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Failed to fetch values from Best-Buy!");
-                    }
-
-                    return decimal.MinusOne;
-                }
-            }).ContinueWith(res => ShrekMap[Money] = res.Result);
-
         static Helpers()
         {
             _lockObject = new object();
@@ -85,18 +50,6 @@ namespace Shrekulator
                 [Distance] = 10.0m, // in feet
                 [Weight] = 650.0m, // in pounds
             };
-
-            FetchPrice(null, null);
-
-            _fetchScheduler = new DispatcherTimer(DispatcherPriority.Background)
-            {
-                Interval = TimeSpan.FromMinutes(15.0),
-                IsEnabled = true,
-            };
-
-            _fetchScheduler.Tick += FetchPrice;
         }
-
-        public static List<T> ListOf<T>(params T[] args) => new List<T>(args);
     }
 }

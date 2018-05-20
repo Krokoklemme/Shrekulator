@@ -27,5 +27,10 @@ namespace Shrekulator
         {
             InitializeComponent();
         }
+
+        private void UpdateClick(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

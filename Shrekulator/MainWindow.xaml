@@ -39,7 +39,7 @@
         </Grid.ColumnDefinitions>
 
         <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="Transparent">
-            <MenuItem Header="Update values" />
+            <MenuItem Header="Update values" Click="UpdateClick" />
         </Menu>
 
         <local:ConverterInterface GroupingTitle="Money" WatermarkText="Put Shrek's here!" ButtonContent="Toggle" Grid.Row="1" Grid.Column="0" />
