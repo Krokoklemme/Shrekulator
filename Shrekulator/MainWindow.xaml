@@ -13,7 +13,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    along with this program.  If not, see <https://www.gnu.org/licenses />.
 -->
 
 <Window x:Class="Shrekulator.MainWindow"
@@ -21,36 +21,42 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Shrekulator"
         mc:Ignorable="d"
-        Title="Shrekulator" Height="450" Width="800"
-        ResizeMode="NoResize"
+        Title="Shrekulator" Width="900" Height="507"
+        Background="{StaticResource BackgroundImage}"
+        BorderBrush="Green" ResizeMode="CanMinimize"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Top" Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Stretch">
+            <ComboBox Width="135" />
+            <Slider Width="100" Orientation="Horizontal" HorizontalAlignment="Stretch"
+                    Minimum="0" Maximum="4" Value="3" />
+            <Label  />
+        </StackPanel>
 
-        <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="Transparent">
-            <MenuItem Header="Update values" Click="UpdateClick" />
-        </Menu>
+        <Label DockPanel.Dock="Bottom"
+               HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+               HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+            <TextBlock TextWrapping="WrapWithOverflow" FontSize="20" Foreground="LightGreen" Loaded="ManageDispatchTimer" />
+        </Label>
 
-        <local:ConverterInterface GroupingTitle="Money" WatermarkText="Put Shrek's here!" ButtonContent="Toggle" Grid.Row="1" Grid.Column="0" />
-        <local:ConverterInterface GroupingTitle="Time" WatermarkText="Put Shrek's here!" ButtonContent="Toggle" Grid.Row="1" Grid.Column="1" />
-        <local:ConverterInterface GroupingTitle="Distance" WatermarkText="Put Shrek's here!" ButtonContent="Toggle" Grid.Row="2" Grid.Column="0" />
-        <local:ConverterInterface GroupingTitle="Weight" WatermarkText="Put Shrek's here!" ButtonContent="Toggle" Grid.Row="2" Grid.Column="1" />
-        
-        <StatusBar Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
-            <StatusBarItem>
-                <TextBlock Text="Insert ShrekCoin value here and maybe error messages" />
-            </StatusBarItem>
-        </StatusBar>
-    </Grid>
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" />
+
+            <Button Grid.Row="1" Grid.Column="0" Content="Tauschen" HorizontalAlignment="Center" />
+            <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="80" />
+
+            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="17" Foreground="DarkRed" HorizontalAlignment="Center" />
+        </Grid>
+    </DockPanel>
 </Window>

@@ -16,40 +16,75 @@
 
 namespace Shrekulator
 {
-    using Shrekulator.Container;
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
     using System.Windows;
-    using static Helpers.ShrekUnitType;
 
     internal static class Helpers
     {
-        public static DependencyProperty DepPropReg<Type, Target>(string name) => DependencyProperty.Register(name, typeof(Type), typeof(Target), new PropertyMetadata(default(Type)));
+        private static Random _rand;
 
-        public static DependencyProperty DepPropReg<Type, Target>(string name, object defaultValue) => DependencyProperty.Register(name, typeof(Type), typeof(Target), new PropertyMetadata(defaultValue));
+        public static Random Rand => _rand ?? (_rand = new Random());
 
-        private static object _lockObject;
+        private static StringBuilder _builder;
 
-        public enum ShrekUnitType
+        public static StringBuilder Builder => _builder ?? (_builder = new StringBuilder());
+
+        private static object _syncObj;
+
+        public static object SyncObj => _syncObj ?? (_syncObj = new object());
+
+        public static T SelectRandom<T>(this IReadOnlyList<T> inst) => inst[Rand.Next(0, inst.Count - 1)];
+
+        public static string SanitizeCasing(this string @this) =>
+            @this.Split(' ')
+                        .Select(
+                            str => str
+                                .Substring(1)
+                                .ToLowerInvariant()
+                                .Insert(0, str[0]
+                                    .ToString()
+                                    .ToUpperInvariant()
+                                )
+                            )
+                        .Aggregate(string.Empty, (a, s) => string.Join(" ", a, s));
+
+        public static class DPBuilder<TTarget>
         {
-            Money,
-            Time,
-            Distance,
-            Weight,
-        }
-
-        public static TrackableMap<ShrekUnitType, decimal> ShrekMap { get; }
-
-        static Helpers()
-        {
-            _lockObject = new object();
-
-            ShrekMap = new TrackableMap<ShrekUnitType, decimal>
+            private static readonly Type[] commonTypes = new[]
             {
-                [Money] = 14.99m, // in USD
-                [Time] = TimeSpan.FromMinutes(95.0).Minutes,
-                [Distance] = 10.0m, // in feet
-                [Weight] = 650.0m, // in pounds
+                typeof(TTarget),
+                typeof(object),
+                typeof(string),
+                typeof(int),
+                typeof(long),
+                typeof(float),
+                typeof(double),
+                typeof(decimal),
+                typeof(bool),
             };
+
+            private static DependencyProperty RegHelper(string name, object defaultValue, Type propType) => DependencyProperty.Register(name, propType, commonTypes[0], new PropertyMetadata(defaultValue));
+
+            public static DependencyProperty AnyDP<TProp>(string name, TProp defaultValue = default) => RegHelper(name, defaultValue, typeof(TProp));
+
+            public static DependencyProperty ObjectDP(string name, object defaultValue = default) => RegHelper(name, defaultValue, commonTypes[1]);
+
+            public static DependencyProperty StringDP(string name, string defaultValue = default) => RegHelper(name, defaultValue, commonTypes[2]);
+
+            public static DependencyProperty IntDP(string name, int defaultValue = default) => RegHelper(name, defaultValue, commonTypes[3]);
+
+            public static DependencyProperty LongDP(string name, long defaultValue = default) => RegHelper(name, defaultValue, commonTypes[4]);
+
+            public static DependencyProperty FloatDP(string name, float defaultValue = default) => RegHelper(name, defaultValue, commonTypes[5]);
+
+            public static DependencyProperty DoubleDP(string name, double defaultValue = default) => RegHelper(name, defaultValue, commonTypes[6]);
+
+            public static DependencyProperty DecimalDP(string name, decimal defaultValue = default) => RegHelper(name, defaultValue, commonTypes[7]);
+
+            public static DependencyProperty BoolDP(string name, bool defaultValue = default) => RegHelper(name, defaultValue, commonTypes[8]);
         }
     }
 }

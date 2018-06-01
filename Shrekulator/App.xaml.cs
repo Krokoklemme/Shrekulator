@@ -16,6 +16,12 @@
 
 namespace Shrekulator
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
     using System.Windows;
 
     /// <summary>
@@ -23,9 +29,65 @@ namespace Shrekulator
     /// </summary>
     public partial class App : Application
     {
-        private void AtStartup(object sender, StartupEventArgs e)
+        public static readonly string Root = AppDomain.CurrentDomain.BaseDirectory;
+
+        private IReadOnlyList<string> _quotes = default;
+
+        public IReadOnlyList<string> GetQuotes()
         {
-            
+            if (_quotes == null)
+            {
+                // I still gotta figure out where I could store
+                // those, so it can download them if necessary
+                var quoteFilePath = Path.Combine(Root, "quotes.txt");
+                IList<string> lines = default;
+
+                if (File.Exists(quoteFilePath))
+                {
+                    lines = File.ReadAllLines(quoteFilePath, Encoding.UTF8);
+
+                    for (int i = 0; i < lines.Count; i++)
+                    {
+                        lines[i] = lines[i].Trim();
+                    }
+                }
+
+                _quotes = new ReadOnlyCollection<string>(lines ?? new[] { "<insert deleted quotes here>" });
+            }
+
+            return _quotes;
+        }
+
+        private IReadOnlyDictionary<string, IReadOnlyList<string>> _convTables = default;
+
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> GetConversionTables()
+        {
+            if (_convTables == null)
+            {
+                var categoryDefinitions = Directory.EnumerateFiles(Root, "*.udef", SearchOption.TopDirectoryOnly);
+                var tableBuffer = new Dictionary<string, IReadOnlyList<string>>(categoryDefinitions.Count());
+                var splitChars = new[] { '=' };
+
+                foreach (var definitionFile in categoryDefinitions)
+                {
+                    var data = File.ReadAllLines(definitionFile, Encoding.UTF8);
+
+                    if (data.Length > 0)
+                    {
+                        var firstLine = data[0].Trim();
+                        var categoryName = definitionFile;
+
+                        if (firstLine.StartsWith("CategoryName"))
+                        {
+                            var categoryNameData = firstLine.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
+
+
+                        }
+                    }
+                }
+            }
+
+            return _convTables;
         }
     }
 }
