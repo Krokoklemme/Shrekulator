@@ -19,7 +19,6 @@ namespace Shrekulator
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using System.Windows;
 
     internal static class Helpers
@@ -27,14 +26,6 @@ namespace Shrekulator
         private static Random _rand;
 
         public static Random Rand => _rand ?? (_rand = new Random());
-
-        private static StringBuilder _builder;
-
-        public static StringBuilder Builder => _builder ?? (_builder = new StringBuilder());
-
-        private static object _syncObj;
-
-        public static object SyncObj => _syncObj ?? (_syncObj = new object());
 
         public static T SelectRandom<T>(this IReadOnlyList<T> inst) => inst[Rand.Next(0, inst.Count - 1)];
 

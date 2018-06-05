@@ -81,6 +81,27 @@ namespace Shrekulator.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This is the part where you run away!
+        ///If that was me, you&apos;d be dead.
+        ///I like that boulder. That is a nice boulder.
+        ///Bachelorette number two is Snow White. She may live with seven men but she ain&apos;t easy.
+        ///There&apos;s an arrow in your butt.
+        ///Are you Princess Fiona?
+        ///What&apos;s the matter? You got somethin&apos; in your eye?
+        ///She called me a noble steed.
+        ///You, uh... you don&apos;t entertain much, do you?
+        ///I like my privacy.
+        ///Wow! Let&apos;s do it again!
+        ///you think hes compensating for something?
+        ///&quot;Ogres are like onions.&quot; - They stin [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Quotes {
+            get {
+                return ResourceManager.GetString("Quotes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] shrekfont {

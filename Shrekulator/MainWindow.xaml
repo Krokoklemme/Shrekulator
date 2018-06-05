@@ -23,9 +23,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Shrekulator" Width="900" Height="507"
-        Background="{StaticResource BackgroundImage}"
         BorderBrush="Green" ResizeMode="CanMinimize"
+        Background="{StaticResource BackgroundImage}"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Window.Resources>
+        <Storyboard x:Key="FadeStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             Duration="0:0:3" BeginTime="0:0:0"
+                             From="0" To="1" AutoReverse="False" />
+
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             Duration="0:0:3" BeginTime="0:0:10"
+                             From="1" To="0" AutoReverse="False" />
+        </Storyboard>
+    </Window.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Stretch">
             <ComboBox Width="135" />
@@ -37,7 +48,7 @@
         <Label DockPanel.Dock="Bottom"
                HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-            <TextBlock TextWrapping="WrapWithOverflow" FontSize="20" Foreground="LightGreen" Loaded="ManageDispatchTimer" />
+            <TextBlock TextWrapping="WrapWithOverflow" FontSize="20" Foreground="LightGreen" Loaded="SetupAnimation" />
         </Label>
 
         <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -51,7 +62,10 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" />
+            <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                <Label Content="Shreks" />
+                <TextBox Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </DockPanel>
 
             <Button Grid.Row="1" Grid.Column="0" Content="Tauschen" HorizontalAlignment="Center" />
             <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="80" />

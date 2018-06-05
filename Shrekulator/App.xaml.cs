@@ -18,7 +18,6 @@ namespace Shrekulator
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -33,30 +32,7 @@ namespace Shrekulator
 
         private IReadOnlyList<string> _quotes = default;
 
-        public IReadOnlyList<string> GetQuotes()
-        {
-            if (_quotes == null)
-            {
-                // I still gotta figure out where I could store
-                // those, so it can download them if necessary
-                var quoteFilePath = Path.Combine(Root, "quotes.txt");
-                IList<string> lines = default;
-
-                if (File.Exists(quoteFilePath))
-                {
-                    lines = File.ReadAllLines(quoteFilePath, Encoding.UTF8);
-
-                    for (int i = 0; i < lines.Count; i++)
-                    {
-                        lines[i] = lines[i].Trim();
-                    }
-                }
-
-                _quotes = new ReadOnlyCollection<string>(lines ?? new[] { "<insert deleted quotes here>" });
-            }
-
-            return _quotes;
-        }
+        public IReadOnlyList<string> GetQuotes() => _quotes ?? (_quotes = Shrekulator.Properties.Resources.Quotes.Split('\n'));
 
         private IReadOnlyDictionary<string, IReadOnlyList<string>> _convTables = default;
 
@@ -80,8 +56,6 @@ namespace Shrekulator
                         if (firstLine.StartsWith("CategoryName"))
                         {
                             var categoryNameData = firstLine.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
-
-
                         }
                     }
                 }
