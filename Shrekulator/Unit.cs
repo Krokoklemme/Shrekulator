@@ -16,56 +16,31 @@
 
 namespace Shrekulator
 {
-    using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
+    using System;
 
     public struct Unit
     {
-        public static IList<IList<Unit>> LookupTables { get; } = new List<IList<Unit>>();
+        public string DisplayName { get; }
 
-        public const string PrefixSymbol = "{1}{2}";
-        public const string PostfixSymbol = "{2}{1}";
-        public const string FullName = "{2} {0}";
-        public const string ValueOnly = "{2}";
-        public const string CommaDash = "{2},-";
+        public string ValueSymbol { get; }
 
-        public string DisplayName { [MethodImpl(MethodImplOptions.AggressiveInlining)] get; }
-        public string Symbol { [MethodImpl(MethodImplOptions.AggressiveInlining)] get; }
-        public decimal OneUnitInShreks => 1m / OneShrekInUnits;
-        public decimal OneShrekInUnits { [MethodImpl(MethodImplOptions.AggressiveInlining)] get; }
-        public string FormatString { [MethodImpl(MethodImplOptions.AggressiveInlining)] get; }
+        public decimal ValueInShreks { get; }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string Format(decimal value) => string.Format(FormatString, DisplayName, Symbol, value);
+        public string FormatString { get; }
 
-        public decimal Convert(decimal value, Unit targetUnit) => decimal.Zero;
+        public string Format(decimal amount) => string.Format(FormatString, amount, DisplayName, ValueSymbol);
 
-        public Unit(string displayName, string symbol, decimal value, string format = PostfixSymbol)
+        public decimal Convert(decimal amount, Unit target)
         {
-            if (string.IsNullOrWhiteSpace(displayName))
-            {
-                Throw.ArgInvalid(nameof(displayName));
-            }
+            throw Throw.NotYet();
+        }
 
-            if (string.IsNullOrWhiteSpace(symbol))
-            {
-                Throw.ArgInvalid(nameof(symbol));
-            }
-
-            if (value <= 0m)
-            {
-                Throw.ArgInvalid(nameof(value));
-            }
-
-            if (string.IsNullOrWhiteSpace(format))
-            {
-                Throw.ArgInvalid(nameof(format));
-            }
-
-            DisplayName = displayName;
-            Symbol = symbol;
-            OneShrekInUnits = value;
-            FormatString = format;
+        public Unit(string displayName, string valueSymbol, decimal valueInShreks, string formatString)
+        {
+            DisplayName = displayName ?? throw Throw.ArgNull(nameof(displayName));
+            ValueSymbol = valueSymbol ?? throw Throw.ArgNull(nameof(ValueSymbol));
+            ValueInShreks = valueInShreks;
+            FormatString = formatString ?? throw Throw.ArgNull(nameof(formatString));
         }
     }
 }

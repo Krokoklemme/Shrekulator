@@ -39,6 +39,7 @@
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Stretch">
+            <Button Content="Update" />
             <ComboBox Width="135" />
             <Slider Width="100" Orientation="Horizontal" HorizontalAlignment="Stretch"
                     Minimum="0" Maximum="4" Value="3" />

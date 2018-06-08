@@ -16,7 +16,9 @@
 
 namespace Shrekulator
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media.Animation;
@@ -25,16 +27,52 @@ namespace Shrekulator
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IDisposable
     {
-        private readonly IReadOnlyList<string> _quotes = Properties.Resources.Quotes.Split('\n');
+        private readonly Dictionary<string, List<Unit>> lookupTables = new Dictionary<string, List<Unit>>();
+
+        private readonly IReadOnlyList<string> quotes = Properties.Resources.Quotes.Split('\n');
+
+        private readonly Queue<string> queuedMessages = new Queue<string>();
+
+        private readonly FileSystemWatcher watcher = new FileSystemWatcher
+        {
+            EnableRaisingEvents = true,
+            Filter = "*.udef",
+            IncludeSubdirectories = false,
+            NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
+            Path = AppDomain.CurrentDomain.BaseDirectory,
+        };
+
+        #region IDisposable Support
+
+        private bool disposedValue = false;
+
+        void IDisposable.Dispose()
+        {
+            if (!disposedValue)
+            {
+                watcher.Dispose();
+
+                disposedValue = true;
+            }
+        }
+
+        #endregion IDisposable Support
+
+        public MainWindow()
+        {
+            InitializeComponent();
+
+            Closing += (o, e) => (this as IDisposable).Dispose();
+        }
 
         public int TickerUpdateFrequency
         {
             get => (int)GetValue(TickerUpdateFrequencyProperty);
             set => SetValue(TickerUpdateFrequencyProperty, value);
         }
-        
+
         public DependencyProperty TickerUpdateFrequencyProperty = IntDP(nameof(TickerUpdateFrequency));
 
         public string InputText
@@ -101,7 +139,7 @@ namespace Shrekulator
             {
                 sb.Completed += async (o, arg) =>
                 {
-                    await miscText.Dispatcher.InvokeAsync(() => miscText.Text = _quotes.SelectRandom());
+                    await miscText.Dispatcher.InvokeAsync(() => miscText.Text = quotes.SelectRandom());
                     sb.Begin(miscText);
                 };
 

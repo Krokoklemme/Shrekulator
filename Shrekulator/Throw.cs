@@ -22,17 +22,21 @@ namespace Shrekulator
 
     public static class Throw
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void ArgNull(
+        internal static ArgumentNullException ArgNull(
             string param,
             [CallerMemberName] string caller = "",
             [CallerFilePath] string file = "",
-            [CallerLineNumber] int line = 0) => throw new ArgumentNullException(param, $"ArgumentNullException at {caller} ({Path.GetFileName(file)}:{line})");
+            [CallerLineNumber] int line = 0) => new ArgumentNullException(param, $"{nameof(ArgumentNullException)} at {caller} ({Path.GetFileName(file)}:{line})");
 
-        internal static void ArgInvalid(
+        internal static ArgumentException ArgInvalid(
             string param,
             [CallerMemberName] string caller = "",
             [CallerFilePath] string file = "",
-            [CallerLineNumber] int line = 0) => throw new ArgumentException(param, $"ArgumentNullException at {caller} ({Path.GetFileName(file)}:{line})");
+            [CallerLineNumber] int line = 0) => new ArgumentException(param, $"{nameof(ArgumentException)} at {caller} ({Path.GetFileName(file)}:{line})");
+
+        internal static NotImplementedException NotYet(
+            [CallerMemberName] string caller = "",
+            [CallerFilePath] string file = "",
+            [CallerLineNumber] int line = 0) => new NotImplementedException($"{nameof(NotImplementedException)} at {caller} ({Path.GetFileName(file)}:{line})");
     }
 }
