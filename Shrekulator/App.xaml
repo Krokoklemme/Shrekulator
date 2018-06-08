@@ -21,18 +21,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <FontFamily x:Key="TrueTypeShrek">
-            pack://application:,,,/Resources/Fonts/#Shrek
-        </FontFamily>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-
         <Style TargetType="Control">
             <Setter Property="Margin" Value="4" />
             <Setter Property="Padding" Value="5,3" />
-            <Setter Property="FontFamily" Value="{StaticResource TrueTypeShrek}" />
+            <Setter Property="FontFamily">
+                <Setter.Value>
+                    <FontFamily>
+                        pack://application:,,,/Resources/Fonts/#Shrek
+                    </FontFamily>
+                </Setter.Value>
+            </Setter>
             <Setter Property="FontSize" Value="15" />
         </Style>
-        <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="ComboBox" />
+        <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="ComboBox">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
         <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="Slider" />
         <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="Label" />
         <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="Button" />

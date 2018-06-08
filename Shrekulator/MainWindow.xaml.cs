@@ -35,13 +35,13 @@ namespace Shrekulator
 
         private readonly Queue<string> queuedMessages = new Queue<string>();
 
-        private readonly FileSystemWatcher watcher = new FileSystemWatcher
+        private readonly FileSystemWatcher watcher = new FileSystemWatcher(".")
         {
             EnableRaisingEvents = true,
             Filter = "*.udef",
             IncludeSubdirectories = false,
             NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
-            Path = AppDomain.CurrentDomain.BaseDirectory,
+            // Path = AppDomain.CurrentDomain.BaseDirectory,
         };
 
         #region IDisposable Support
@@ -144,6 +144,13 @@ namespace Shrekulator
                 };
 
                 sb.Begin(miscText);
+            }
+        }
+
+        private void SetupShrekCoinTicker(object sender, RoutedEventArgs e)
+        {
+            if (sender is WebBrowser browser)
+            {
             }
         }
     }

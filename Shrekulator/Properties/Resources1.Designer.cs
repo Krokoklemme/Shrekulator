@@ -8,8 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Shrekulator.Properties
-{
+namespace Shrekulator.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -61,9 +63,9 @@ namespace Shrekulator.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon appicon {
+        internal static System.Drawing.Icon AppIcon {
             get {
-                object obj = ResourceManager.GetObject("appicon", resourceCulture);
+                object obj = ResourceManager.GetObject("AppIcon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -71,9 +73,9 @@ namespace Shrekulator.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap mainbgimgbrush {
+        internal static System.Drawing.Bitmap BackgroundImage {
             get {
-                object obj = ResourceManager.GetObject("mainbgimgbrush", resourceCulture);
+                object obj = ResourceManager.GetObject("BackgroundImage", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -102,9 +104,9 @@ namespace Shrekulator.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] shrekfont {
+        internal static byte[] ShrekFont {
             get {
-                object obj = ResourceManager.GetObject("shrekfont", resourceCulture);
+                object obj = ResourceManager.GetObject("ShrekFont", resourceCulture);
                 return ((byte[])(obj));
             }
         }
