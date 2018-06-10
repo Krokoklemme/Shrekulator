@@ -75,6 +75,7 @@
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Compile Include="Category.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Properties\Resources1.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -144,6 +145,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\quotes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ModdingReadme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

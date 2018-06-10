@@ -16,24 +16,31 @@
 
 namespace Shrekulator
 {
-    public struct Unit
+    using Newtonsoft.Json.Linq;
+    using System.Collections.Generic;
+
+    internal sealed class Category
     {
-        public string DisplayName { get; }
+        public string Name { get; }
+        public IList<Unit> Units { get; }
 
-        public string ValueSymbol { get; }
-
-        public decimal Value { get; }
-
-        public string FormatString { get; }
-
-        public string Format(decimal amount) => string.Format(FormatString, amount, DisplayName, ValueSymbol);
-
-        public Unit(string displayName, string valueSymbol, decimal valueInShreks, string formatString)
+        public Category(string name, IList<Unit> units)
         {
-            DisplayName = displayName ?? throw Throw.ArgNull(nameof(displayName));
-            ValueSymbol = valueSymbol ?? throw Throw.ArgNull(nameof(ValueSymbol));
-            Value = valueInShreks;
-            FormatString = formatString ?? throw Throw.ArgNull(nameof(formatString));
+            Name = name;
+            Units = units;
+        }
+
+        public static Category Parse(string value)
+        {
+            Category res = default;
+            var json = JObject.Parse(string.IsNullOrWhiteSpace(value) ? "{}" : value);
+
+            if (json.TryGetValue("CategoryName", out var name) && json.TryGetValue("Units", out var units))
+            {
+                res = new Category((string)name, units.ToObject<IList<Unit>>());
+            }
+
+            return res;
         }
     }
 }

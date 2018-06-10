@@ -29,7 +29,7 @@ namespace Shrekulator
     /// </summary>
     public partial class MainWindow : Window, IDisposable
     {
-        private readonly Dictionary<string, List<Unit>> lookupTables = new Dictionary<string, List<Unit>>();
+        private readonly IDictionary<string, Category> categories = new Dictionary<string, Category>();
 
         private readonly IReadOnlyList<string> quotes = Properties.Resources.Quotes.Split('\n');
 
@@ -37,11 +37,10 @@ namespace Shrekulator
 
         private readonly FileSystemWatcher watcher = new FileSystemWatcher(".")
         {
-            EnableRaisingEvents = true,
             Filter = "*.udef",
             IncludeSubdirectories = false,
-            NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
-            // Path = AppDomain.CurrentDomain.BaseDirectory,
+            NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite,
+            Path = AppDomain.CurrentDomain.BaseDirectory,
         };
 
         #region IDisposable Support
@@ -63,6 +62,52 @@ namespace Shrekulator
         public MainWindow()
         {
             InitializeComponent();
+
+            foreach (var defFile in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly))
+            {
+                var fullPath = Path.GetFullPath(defFile);
+                categories.Add(fullPath, Category.Parse(File.ReadAllText(fullPath)));
+            }
+
+            watcher.Deleted += (o, e) =>
+            {
+                if (!categories.IsReadOnly)
+                {
+                    MessageBox.Show("delet");
+                    categories.Remove(e.FullPath);
+                }
+            };
+
+            watcher.Created += (o, e) =>
+            {
+                if (!categories.ContainsKey(e.FullPath) && !categories.IsReadOnly)
+                {
+                    MessageBox.Show("created");
+                    categories.Add(e.FullPath, Category.Parse(File.ReadAllText(e.FullPath)));
+                }
+            };
+
+            watcher.Changed += (o, e) =>
+            {
+                if (categories.ContainsKey(e.FullPath) && !categories.IsReadOnly)
+                {
+                    MessageBox.Show("changed");
+                    categories[e.FullPath] = Category.Parse(File.ReadAllText(e.FullPath));
+                }
+            };
+
+            watcher.Renamed += (o, e) =>
+            {
+                if (categories.ContainsKey(e.OldFullPath) && !categories.IsReadOnly)
+                {
+                    MessageBox.Show("renamed");
+                    var bfr = categories[e.OldFullPath];
+                    categories.Add(e.FullPath, bfr);
+                    categories.Remove(e.OldFullPath);
+                }
+            };
+
+            watcher.EnableRaisingEvents = true;
 
             Closing += (o, e) => (this as IDisposable).Dispose();
         }
@@ -139,7 +184,7 @@ namespace Shrekulator
             {
                 sb.Completed += async (o, arg) =>
                 {
-                    await miscText.Dispatcher.InvokeAsync(() => miscText.Text = quotes.SelectRandom());
+                    await miscText.Dispatcher.InvokeAsync(() => miscText.Text = (queuedMessages.Count > 0 ? queuedMessages.Dequeue() : quotes.SelectRandom()));
                     sb.Begin(miscText);
                 };
 

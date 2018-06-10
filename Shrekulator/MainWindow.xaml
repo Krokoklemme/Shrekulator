@@ -39,7 +39,6 @@
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Stretch">
-            
         </StackPanel>
 
         <Label DockPanel.Dock="Bottom"
