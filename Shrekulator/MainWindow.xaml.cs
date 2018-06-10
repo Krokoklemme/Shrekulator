@@ -66,7 +66,7 @@ namespace Shrekulator
             foreach (var defFile in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly))
             {
                 var fullPath = Path.GetFullPath(defFile);
-                categories.Add(fullPath, Category.Parse(File.ReadAllText(fullPath)));
+                categories.Add(fullPath, Category.Parse(fullPath));
             }
 
             watcher.Deleted += (o, e) =>
@@ -83,7 +83,7 @@ namespace Shrekulator
                 if (!categories.ContainsKey(e.FullPath) && !categories.IsReadOnly)
                 {
                     MessageBox.Show("created");
-                    categories.Add(e.FullPath, Category.Parse(File.ReadAllText(e.FullPath)));
+                    categories.Add(e.FullPath, Category.Parse(e.FullPath));
                 }
             };
 
@@ -92,7 +92,7 @@ namespace Shrekulator
                 if (categories.ContainsKey(e.FullPath) && !categories.IsReadOnly)
                 {
                     MessageBox.Show("changed");
-                    categories[e.FullPath] = Category.Parse(File.ReadAllText(e.FullPath));
+                    categories[e.FullPath] = Category.Parse(e.FullPath);
                 }
             };
 
@@ -189,13 +189,6 @@ namespace Shrekulator
                 };
 
                 sb.Begin(miscText);
-            }
-        }
-
-        private void SetupShrekCoinTicker(object sender, RoutedEventArgs e)
-        {
-            if (sender is WebBrowser browser)
-            {
             }
         }
     }

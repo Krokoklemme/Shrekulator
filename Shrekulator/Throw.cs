@@ -20,23 +20,43 @@ namespace Shrekulator
     using System.IO;
     using System.Runtime.CompilerServices;
 
-    public static class Throw
+    internal static class Throw
     {
-        internal static ArgumentNullException ArgNull(
+        public static ArgumentNullException ArgNull(
             string param,
             [CallerMemberName] string caller = "",
             [CallerFilePath] string file = "",
             [CallerLineNumber] int line = 0) => new ArgumentNullException(param, $"{nameof(ArgumentNullException)} at {caller} ({Path.GetFileName(file)}:{line})");
 
-        internal static ArgumentException ArgInvalid(
+        public static ArgumentNullException ArgNull(
+            string message,
+            string param,
+            [CallerMemberName] string caller = "",
+            [CallerFilePath] string file = "",
+            [CallerLineNumber] int line = 0) => new ArgumentNullException(param, $"{nameof(ArgumentNullException)} at {caller} ({Path.GetFileName(file)}:{line})\n\n{message}");
+
+        public static ArgumentException ArgInvalid(
             string param,
             [CallerMemberName] string caller = "",
             [CallerFilePath] string file = "",
             [CallerLineNumber] int line = 0) => new ArgumentException(param, $"{nameof(ArgumentException)} at {caller} ({Path.GetFileName(file)}:{line})");
 
-        internal static NotImplementedException NotYet(
+        public static ArgumentException ArgInvalid(
+            string message,
+            string param,
+            [CallerMemberName] string caller = "",
+            [CallerFilePath] string file = "",
+            [CallerLineNumber] int line = 0) => new ArgumentException(param, $"{nameof(ArgumentException)} at {caller} ({Path.GetFileName(file)}:{line})\n\n{message}");
+
+        public static NotImplementedException NotYet(
             [CallerMemberName] string caller = "",
             [CallerFilePath] string file = "",
             [CallerLineNumber] int line = 0) => new NotImplementedException($"{nameof(NotImplementedException)} at {caller} ({Path.GetFileName(file)}:{line})");
+
+        public static NotImplementedException NotYet(
+            string message,
+            [CallerMemberName] string caller = "",
+            [CallerFilePath] string file = "",
+            [CallerLineNumber] int line = 0) => new NotImplementedException($"{nameof(NotImplementedException)} at {caller} ({Path.GetFileName(file)}:{line})\n\n{message}");
     }
 }

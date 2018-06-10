@@ -16,12 +16,13 @@
 
 namespace Shrekulator
 {
-    using Newtonsoft.Json.Linq;
+    using System;
     using System.Collections.Generic;
 
     internal sealed class Category
     {
         public string Name { get; }
+        public Uri DefinitionFilePath { get; }
         public IList<Unit> Units { get; }
 
         public Category(string name, IList<Unit> units)
@@ -30,17 +31,11 @@ namespace Shrekulator
             Units = units;
         }
 
-        public static Category Parse(string value)
+        public static Category Parse(string path)
         {
-            Category res = default;
-            var json = JObject.Parse(string.IsNullOrWhiteSpace(value) ? "{}" : value);
 
-            if (json.TryGetValue("CategoryName", out var name) && json.TryGetValue("Units", out var units))
-            {
-                res = new Category((string)name, units.ToObject<IList<Unit>>());
-            }
 
-            return res;
+            return null;
         }
     }
 }
