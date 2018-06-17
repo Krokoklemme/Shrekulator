@@ -19,7 +19,6 @@ namespace Shrekulator
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Windows;
 
     internal static class Helpers
@@ -27,42 +26,6 @@ namespace Shrekulator
         private static Random _rand;
 
         public static Random Rand => _rand ?? (_rand = new Random());
-
-        public struct SourceLocation
-        {
-            public string Caller { get; }
-            public string File { get; }
-            public int Line { get; }
-
-            public override string ToString() => $"{{{File}:{Line}}} {Caller}";
-
-            private SourceLocation(string caller, string file, int line)
-            {
-                Caller = (caller = caller.Trim()) != string.Empty ?
-                    caller :
-                    throw Throw.ArgInvalid(
-                        message: "String was empty",
-                        param: nameof(caller));
-
-                File = (file = file.Trim()) != string.Empty ?
-                    file :
-                    throw Throw.ArgInvalid(
-                        message: "String was empty",
-                        param: nameof(file));
-
-                Line = line >= 0 ? line : throw Throw.ArgInvalid(message: "Value was negative", param: nameof(line));
-            }
-
-            public static SourceLocation Get(
-                [CallerMemberName] string caller = default,
-                [CallerFilePath] string file = default,
-                [CallerLineNumber] int line = default)
-                    => new SourceLocation(
-                        caller ?? throw Throw.ArgNull(nameof(caller)),
-                        file ?? throw Throw.ArgNull(nameof(file)),
-                        line
-                    );
-        }
 
         public static T SelectRandom<T>(this IReadOnlyList<T> inst) => inst[Rand.Next(0, inst.Count - 1)];
 
@@ -77,7 +40,7 @@ namespace Shrekulator
                                     .ToUpperInvariant()
                                 )
                             )
-                        .Aggregate(string.Empty, (lhs, rhs) => string.Concat(lhs, "\n", rhs));
+                        .Aggregate(string.Empty, (lhs, rhs) => string.Concat(lhs, " ", rhs));
 
         public static class DPBuilder<TTarget>
         {

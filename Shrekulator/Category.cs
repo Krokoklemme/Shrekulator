@@ -16,26 +16,44 @@
 
 namespace Shrekulator
 {
-    using System;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Windows;
 
-    internal sealed class Category
+    public class Category
     {
+        private static readonly JsonLoadSettings loadSettings = new JsonLoadSettings { LineInfoHandling = LineInfoHandling.Load, CommentHandling = CommentHandling.Ignore };
+
         public string Name { get; }
-        public Uri DefinitionFilePath { get; }
         public IList<Unit> Units { get; }
 
         public Category(string name, IList<Unit> units)
         {
-            Name = name;
-            Units = units;
+            Name = name ?? throw Throw.ArgNull(nameof(name));
+            Units = units ?? throw Throw.ArgNull(nameof(units));
         }
 
-        public static Category Parse(string path)
+        public static Category Load(string path)
         {
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException("Failed to find specified file", path);
+            }
 
+            var content = File.ReadAllText(path);
 
-            return null;
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                content = "{}";
+            }
+
+            var cat = JsonConvert.DeserializeObject<Category>(content);
+
+            MessageBox.Show(cat.Name);
+
+            return default;
         }
     }
 }

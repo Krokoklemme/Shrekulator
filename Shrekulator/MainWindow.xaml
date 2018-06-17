@@ -39,6 +39,8 @@
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Stretch">
+            <ComboBox MinWidth="100" SelectionChanged="CategoryChanged" ItemsSource="{Binding LoadedCategories, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="{Binding CoinTickerText}" Foreground="LightGreen" />
         </StackPanel>
 
         <Label DockPanel.Dock="Bottom"
@@ -64,9 +66,15 @@
             </DockPanel>
 
             <Button Grid.Row="1" Grid.Column="0" Content="Tauschen" HorizontalAlignment="Center" />
-            <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="100" />
+            <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="100"
+                      ItemsSource="{Binding AvailableUnits}" SelectionChanged="UnitChanged">
+                <ComboBoxItem Content="hi" />
+                <ComboBoxItem Content="hi" />
+                <ComboBoxItem Content="hi" />
+                <ComboBoxItem Content="hi" />
+            </ComboBox>
 
-            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="17" Foreground="DarkRed" HorizontalAlignment="Center" />
+            <Label Content="{Binding ResultText}"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="17" Foreground="DarkRed" HorizontalAlignment="Center" />
         </Grid>
     </DockPanel>
 </Window>

@@ -16,9 +16,13 @@
 
 namespace Shrekulator
 {
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Timers;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media.Animation;
@@ -29,17 +33,25 @@ namespace Shrekulator
     /// </summary>
     public partial class MainWindow : Window, IDisposable
     {
-        private readonly IDictionary<string, Category> categories = new Dictionary<string, Category>();
-
         private readonly IReadOnlyList<string> quotes = Properties.Resources.Quotes.Split('\n');
 
         private readonly Queue<string> queuedMessages = new Queue<string>();
+
+        private readonly Timer timer = new Timer
+        {
+            AutoReset = true,
+            Enabled = true,
+            Interval = TimeSpan.FromMinutes(1).TotalMilliseconds,
+        };
 
         private readonly FileSystemWatcher watcher = new FileSystemWatcher(".")
         {
             Filter = "*.udef",
             IncludeSubdirectories = false,
-            NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite,
+            NotifyFilter =
+                NotifyFilters.FileName |
+                NotifyFilters.CreationTime |
+                NotifyFilters.LastWrite,
             Path = AppDomain.CurrentDomain.BaseDirectory,
         };
 
@@ -52,6 +64,7 @@ namespace Shrekulator
             if (!disposedValue)
             {
                 watcher.Dispose();
+                timer.Dispose();
 
                 disposedValue = true;
             }
@@ -63,48 +76,62 @@ namespace Shrekulator
         {
             InitializeComponent();
 
+            timer.Elapsed += async (o, e) =>
+            {
+                var request = WebRequest.Create(@"https://min-api.cryptocompare.com/data/price?fsym=SHREK&tsyms=USD,EUR&extraParams=Shrekulator");
+
+                using (var response = await request.GetResponseAsync().ConfigureAwait(false))
+                using (var responseStream = response.GetResponseStream())
+                using (var reader = new StreamReader(responseStream))
+                {
+                    var result = await reader.ReadToEndAsync();
+                    var valueTree = JObject.Parse(result);
+
+                    var usdValue = valueTree.GetValue("USD").ToObject<decimal>();
+                    var eurValue = valueTree.GetValue("EUR").ToObject<decimal>();
+
+                    Application.Current.Dispatcher.Invoke(() => CoinTickerText = $"ShrekCoin ::: USD: {usdValue}      EUR: {eurValue}");
+                }
+            };
+
+            var bfr = new List<Category>();
+
             foreach (var defFile in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly))
             {
                 var fullPath = Path.GetFullPath(defFile);
-                categories.Add(fullPath, Category.Parse(fullPath));
+                bfr.Add(Category.Load(fullPath));
             }
 
             watcher.Deleted += (o, e) =>
             {
-                if (!categories.IsReadOnly)
-                {
-                    MessageBox.Show("delet");
-                    categories.Remove(e.FullPath);
-                }
+                
             };
 
             watcher.Created += (o, e) =>
             {
-                if (!categories.ContainsKey(e.FullPath) && !categories.IsReadOnly)
+                var ctg = Category.Load(e.FullPath);
+                var queriedCategories = from category in LoadedCategories
+                                        where category.Name == ctg.Name
+                                        select category;
+
+                if (queriedCategories.Count() == 0)
                 {
-                    MessageBox.Show("created");
-                    categories.Add(e.FullPath, Category.Parse(e.FullPath));
+                    LoadedCategories.Add(ctg);
+                }
+                else
+                {
+                    var ctgToReplace = queriedCategories.ElementAt(0);
+                    var idx = LoadedCategories.IndexOf(ctgToReplace);
+                    LoadedCategories[idx] = ctg;
                 }
             };
 
             watcher.Changed += (o, e) =>
             {
-                if (categories.ContainsKey(e.FullPath) && !categories.IsReadOnly)
-                {
-                    MessageBox.Show("changed");
-                    categories[e.FullPath] = Category.Parse(e.FullPath);
-                }
             };
 
             watcher.Renamed += (o, e) =>
             {
-                if (categories.ContainsKey(e.OldFullPath) && !categories.IsReadOnly)
-                {
-                    MessageBox.Show("renamed");
-                    var bfr = categories[e.OldFullPath];
-                    categories.Add(e.FullPath, bfr);
-                    categories.Remove(e.OldFullPath);
-                }
             };
 
             watcher.EnableRaisingEvents = true;
@@ -112,13 +139,13 @@ namespace Shrekulator
             Closing += (o, e) => (this as IDisposable).Dispose();
         }
 
-        public int TickerUpdateFrequency
+        public string CoinTickerText
         {
-            get => (int)GetValue(TickerUpdateFrequencyProperty);
-            set => SetValue(TickerUpdateFrequencyProperty, value);
+            get => (string)GetValue(CoinTickerTextProperty);
+            set => SetValue(CoinTickerTextProperty, value);
         }
 
-        public DependencyProperty TickerUpdateFrequencyProperty = IntDP(nameof(TickerUpdateFrequency));
+        public DependencyProperty CoinTickerTextProperty = StringDP(nameof(CoinTickerText), "Fetching value...");
 
         public string InputText
         {
@@ -127,6 +154,30 @@ namespace Shrekulator
         }
 
         public DependencyProperty InputTextProperty = StringDP(nameof(InputText));
+
+        public string ResultText
+        {
+            get => (string)GetValue(ResultTextProperty);
+            set => SetValue(ResultTextProperty, value);
+        }
+
+        public DependencyProperty ResultTextProperty = StringDP(nameof(ResultText));
+
+        public IList<Category> LoadedCategories
+        {
+            get => (IList<Category>)GetValue(LoadedCategoriesProperty);
+            set => SetValue(LoadedCategoriesProperty, value);
+        }
+
+        public DependencyProperty LoadedCategoriesProperty = AnyDP<IList<Category>>(nameof(LoadedCategories));
+
+        public IList<Unit> AvailableUnits
+        {
+            get => (IList<Unit>)GetValue(AvailableUnitsProperty);
+            set => SetValue(AvailableUnitsProperty, value);
+        }
+
+        public DependencyProperty AvailableUnitsProperty = AnyDP<IList<Unit>>(nameof(AvailableUnits));
 
         //static MainWindow()
         //{
@@ -189,6 +240,25 @@ namespace Shrekulator
                 };
 
                 sb.Begin(miscText);
+            }
+        }
+
+        private void CategoryChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox categorySelection)
+            {
+                if (categorySelection.SelectedValue is Category)
+                {
+                    MessageBox.Show("yup");
+                }
+            }
+        }
+
+        private void UnitChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox unitSelection)
+            {
+                ResultText = unitSelection.SelectedIndex.ToString();
             }
         }
     }
