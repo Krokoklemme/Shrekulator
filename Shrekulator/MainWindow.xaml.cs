@@ -1,31 +1,30 @@
-﻿/*
-This is free and unencumbered software released into the public domain.
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a
-compiled binary, for any purpose, commercial or non-commercial,
-and by any means.
-In jurisdictions that recognize copyright laws, the author or
-authors of this software dedicate any and all copyright interest
-in the software to the public domain. We make this dedication for
-the benefit of the public at large and to the detriment of our
-heirs and successors. We intend this dedication to be an overt act
-of relinquishment in perpetuity of all present and future rights to
-this software under copyright law.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-For more information, please refer to <https://unlicense.org>
-*/
+﻿// This is free and unencumbered software released into the public domain.
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a
+// compiled binary, for any purpose, commercial or non-commercial,
+// and by any means.
+// In jurisdictions that recognize copyright laws, the author or
+// authors of this software dedicate any and all copyright interest
+// in the software to the public domain. We make this dedication for
+// the benefit of the public at large and to the detriment of our
+// heirs and successors. We intend this dedication to be an overt act
+// of relinquishment in perpetuity of all present and future rights to
+// this software under copyright law.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// For more information, please refer to <https://unlicense.org>
 
 namespace Shrekulator
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media.Animation;
@@ -50,13 +49,8 @@ namespace Shrekulator
         {
             InitializeComponent();
 
-            var bfr = new List<Category>();
-
-            foreach (var defFile in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly))
-            {
-                var fullPath = Path.GetFullPath(defFile);
-                bfr.Add(Category.Load(fullPath));
-            }
+            var ex = Ex.FormErr();
+            MessageBox.Show(ex.Message);
         }
 
         public string CoinTickerText
@@ -89,7 +83,16 @@ namespace Shrekulator
             set => SetValue(LoadedCategoriesProperty, value);
         }
 
-        public DependencyProperty LoadedCategoriesProperty = AnyDP<IList<Category>>(nameof(LoadedCategories));
+        public DependencyProperty LoadedCategoriesProperty
+            = AnyDP(
+                nameof(LoadedCategories),
+                new List<Category>
+                {
+                    [0] = App.BuiltinCategories.Time,
+                    [1] = App.BuiltinCategories.Distance,
+                }.Append(from filepath
+                         in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly)
+                         select Category.Load(filepath)));
 
         public IList<Unit> AvailableUnits
         {
@@ -101,7 +104,8 @@ namespace Shrekulator
 
         private void SetupAnimation(object sender, RoutedEventArgs e)
         {
-            if (sender is TextBlock miscText && TryFindResource("FadeStoryboard") is Storyboard sb)
+            if (sender is TextBlock miscText &&
+                TryFindResource("FadeStoryboard") is Storyboard sb)
             {
                 sb.Completed += async (o, arg) =>
                 {
@@ -115,20 +119,25 @@ namespace Shrekulator
 
         private void CategoryChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is ComboBox categorySelection)
+            if (sender is ComboBox categorySelection &&
+                categorySelection.SelectedValue is Category value)
             {
-                if (categorySelection.SelectedValue is Category)
+                MessageBox.Show($"{value.Name} - {value.Units.Count} Units");
+
+                foreach (var unit in value.Units)
                 {
-                    MessageBox.Show("yup");
+                    MessageBox.Show($"{unit.Name}\n{unit.Symbol}\n{unit.Value}");
                 }
             }
         }
 
         private void UnitChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is ComboBox unitSelection)
+            MessageBox.Show(nameof(UnitChanged));
+
+            if (sender is ComboBox unitSelection &&
+                unitSelection.SelectedValue is Unit value)
             {
-                ResultText = unitSelection.SelectedIndex.ToString();
             }
         }
     }
