@@ -29,9 +29,9 @@ namespace Shrekulator
 
         public decimal Value { get; }
 
-        public string FormatString { get; }
+        public string Format { get; }
 
-        public string ToString(decimal amount) => string.Format(FormatString, amount, Name, Symbol);
+        public string ToString(decimal amount) => string.Format(Format, amount, Name, Symbol);
 
         public decimal Convert(decimal amount, Unit target) => throw Ex.NoImpl();
 
@@ -39,8 +39,8 @@ namespace Shrekulator
         {
             Name = name ?? throw Ex.ArgNull(nameof(name));
             Symbol = symbol ?? throw Ex.ArgNull(nameof(Symbol));
-            Value = value < decimal.Zero ? value : throw Ex.ArgInvalid(nameof(value), "Unit value may not be negative");
-            FormatString = format ?? throw Ex.ArgNull(nameof(format));
+            Value = value >= decimal.Zero ? value : throw Ex.ArgInvalid(nameof(value), "Unit value may not be negative");
+            Format = format ?? throw Ex.ArgNull(nameof(format));
         }
     }
 }

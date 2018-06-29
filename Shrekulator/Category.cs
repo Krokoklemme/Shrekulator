@@ -24,82 +24,85 @@ namespace Shrekulator
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     public class Category
     {
+        /// <summary>
+        /// The name of the category
+        /// </summary>
         public string Name { get; }
-        public IList<Unit> Units { get; }
 
-        public Category(string name, IList<Unit> units)
+        /// <summary>
+        /// Units, that belong to this category
+        /// </summary>
+        public IReadOnlyList<Unit> Units { get; }
+
+        /// <summary>
+        /// Instantiates a new <see cref="Category" /> object with the specified name and units
+        /// </summary>
+        /// <param name="name">The name of the category to be created</param>
+        /// <param name="units">Units that belong to this category</param>
+        /// <exception cref="ArgumentNullException">Thrown, when either <paramref name="name"/> or <paramref name="units"/> is <c>null</c></exception>
+        public Category(string name, IReadOnlyList<Unit> units)
         {
             Name = name ?? throw Ex.ArgNull(nameof(name));
             Units = units ?? throw Ex.ArgNull(nameof(units));
         }
 
-        public static Category Load(string path)
+        /// <summary>
+        /// Converts the given JSON string into a <see cref="Category"/> object
+        /// </summary>
+        /// <param name="data">The string to parse</param>
+        /// <returns>A new <see cref="Category"/> object constructed from <paramref name="data"/></returns>
+        /// <exception cref="ArgumentNullException">Thrown, when <paramref name="data"/> is <c>null</c></exception>
+        /// <exception cref="ArgumentException">Thrown, when <paramref name="data"/> is empty</exception>
+        /// <exception cref="JsonException">Thrown, when <paramref name="data"/> contains invalid JSON</exception>
+        /// <exception cref="FormatException">Thrown, when <paramref name="data"/> doesn't contain a valid category definition</exception>
+        public static Category Parse(string data)
         {
-            if (!File.Exists(path))
-            {
-                throw Ex.NoFile(path, "Specified definition file not found");
-            }
+            if (data == null) throw Ex.ArgNull(nameof(data));
+            if (string.IsNullOrWhiteSpace(data)) throw Ex.ArgInvalid(nameof(data), "String was empty");
 
-            var definitionTree = JObject.Parse(File.ReadAllText(path));
+            var definitionTree = JObject.Parse(data);
 
-            if (!definitionTree.HasValues)
+            if (definitionTree.Count == 2 &&
+                definitionTree.TryGetValue(nameof(Category.Name), StringComparison.InvariantCulture, out var nameToken) &&
+                definitionTree.TryGetValue(nameof(Category.Units), StringComparison.InvariantCulture, out var unitsToken) &&
+                nameToken.Type == JTokenType.String &&
+                unitsToken is JArray unitArray)
             {
-                return new Category(Path.GetFileNameWithoutExtension(path).SanitizeCasing(), new List<Unit>());
-            }
-            else
-            {
-                if (definitionTree.Count <= 2 &&
-                    definitionTree.TryGetValue("Units", StringComparison.InvariantCulture, out var unitNode) &&
-                    unitNode is JArray unitArray)
+                var name = (string)nameToken;
+                var units = new List<Unit>(unitArray.Count);
+
+                foreach (JObject item in unitArray)
                 {
-                    var unitList = new List<Unit>(unitArray.Count);
-
-                    var name = string.Empty;
-
-                    if (definitionTree.Count == 2 &&
-                        definitionTree.TryGetValue("Name", StringComparison.InvariantCulture, out var nameNode) && nameNode.Type == JTokenType.String)
+                    if (item.Count == 4 &&
+                        item.TryGetValue(nameof(Unit.Name), StringComparison.InvariantCulture, out var itemName) &&
+                        item.TryGetValue(nameof(Unit.Symbol), StringComparison.InvariantCulture, out var itemSymbol) &&
+                        item.TryGetValue(nameof(Unit.Value), StringComparison.InvariantCulture, out var itemValue) &&
+                        item.TryGetValue(nameof(Unit.Format), StringComparison.InvariantCulture, out var itemFormat) &&
+                        itemName.Type == JTokenType.String &&
+                        itemSymbol.Type == JTokenType.String &&
+                        (itemValue.Type == JTokenType.Float || itemValue.Type == JTokenType.Integer) &&
+                        itemFormat.Type == JTokenType.String)
                     {
-                        name = (string)nameNode;
+                        units.Add(new Unit(
+                                (string)itemName,
+                                (string)itemSymbol,
+                                (decimal)itemValue,
+                                (string)itemFormat
+                            ));
                     }
                     else
                     {
-                        name = Path.GetFileNameWithoutExtension(path).SanitizeCasing();
+                        throw Ex.FormErr();
                     }
-
-                    foreach (JObject unit in unitArray)
-                    {
-                        if (unit.Count == 4 &&
-                            unit.TryGetValue("Name", StringComparison.InvariantCulture, out var nameToken) && nameToken.Type == JTokenType.String &&
-                            unit.TryGetValue("Symbol", StringComparison.InvariantCulture, out var symbolToken) && symbolToken.Type == JTokenType.String &&
-                            unit.TryGetValue("Value", StringComparison.InvariantCulture, out var valueToken) && valueToken.Type == JTokenType.Float &&
-                            unit.TryGetValue("Format", StringComparison.InvariantCulture, out var formatToken) && formatToken.Type == JTokenType.String)
-                        {
-                            unitList.Add(
-                                new Unit(
-                                    name: (string)nameToken,
-                                    symbol: (string)symbolToken,
-                                    value: (decimal)valueToken,
-                                    format: (string)formatToken
-                                ));
-                        }
-                        else
-                        {
-                            throw Ex.FormErr($"{name} - Invalid format at index {unitArray.IndexOf(unit)}",
-                                notes: "Check out 'ModdingReadme.txt' for more information");
-                        }
-                    }
-
-                    return new Category(name, unitList);
                 }
-                else
-                {
-                    throw Ex.FormErr("Category files must consist of a 'Units'-array + optional 'Name'-property");
-                }
+
+                return new Category(name, units);
             }
+
+            throw Ex.FormErr();
         }
     }
 }

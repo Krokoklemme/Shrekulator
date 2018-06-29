@@ -36,21 +36,57 @@ namespace Shrekulator
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string PostFmt = "{0} {2}";
+
         private readonly IReadOnlyList<string> quotes = Properties.Resources.Quotes.Split('\n');
 
         private readonly Queue<string> queuedMessages = new Queue<string>();
+
+        private readonly Random rand = new Random();
 
         private readonly DispatcherTimer timer = new DispatcherTimer(TimeSpan.FromMinutes(1.0), DispatcherPriority.Background, (o, e) => { }, Application.Current.Dispatcher)
         {
             IsEnabled = true
         };
 
+        //private Category[] arr = new[]
+        //{
+        //        new Category(
+        //             "Zeit",
+        //             new List<Unit>
+        //             {
+        //                 new Unit("Millisekunden", "ms", 95 * 60 * 1000, PostFmt),
+        //                 new Unit("Sekunden", "sec", 95 * 60, PostFmt),
+        //                 new Unit("Minuten", "min", 95, PostFmt),
+        //                 new Unit("Stunden", "h", 95 / 60, PostFmt),
+        //                 new Unit("Tage", "d", 95 / 60 / 24, PostFmt),
+        //                 new Unit("Wochen", "w", 95 / 60 / 24 / 7, PostFmt),
+        //                 new Unit("Monate", "m", 95 / 60 / 24 / 7 / 4, PostFmt),
+        //                 new Unit("Jahre", "a", 95 / 60 / 24 / 7 / 4 / 12, PostFmt)
+        //             }),
+
+        //         new Category(
+        //            "Entfernung",
+        //            new List<Unit>
+        //            {
+        //                // Imperial Units, Shrek is considered to be 8 foot tall
+        //                // so that's what we'll be using as a baseunit
+        //                new Unit("Zoll", "'", 8 * 12, PostFmt),
+        //                new Unit("Fuß", "\"", 8, PostFmt),
+        //                new Unit("Yard", "yd", 8 / 3, PostFmt),
+        //                new Unit("Meile", "mile", 8 / 3 / 1760, PostFmt),
+
+        //                // Metric units
+        //                new Unit("Millimeter", "mm", 8 * 30.48m * 1000, PostFmt),
+        //                new Unit("Zentimeter", "cm", 8 * 30.48m, PostFmt),
+        //                new Unit("Meter", "cm", 8 * 30.48m / 100, PostFmt),
+        //                new Unit("Kilometer", "cm", 8 * 30.48m / 100 / 1000, PostFmt),
+        //            }),
+        //};
+
         public MainWindow()
         {
             InitializeComponent();
-
-            var ex = Ex.FormErr();
-            MessageBox.Show(ex.Message);
         }
 
         public string CoinTickerText
@@ -77,30 +113,13 @@ namespace Shrekulator
 
         public DependencyProperty ResultTextProperty = StringDP(nameof(ResultText));
 
-        public IList<Category> LoadedCategories
+        public IReadOnlyList<Unit> AvailableUnits
         {
-            get => (IList<Category>)GetValue(LoadedCategoriesProperty);
-            set => SetValue(LoadedCategoriesProperty, value);
-        }
-
-        public DependencyProperty LoadedCategoriesProperty
-            = AnyDP(
-                nameof(LoadedCategories),
-                new List<Category>
-                {
-                    [0] = App.BuiltinCategories.Time,
-                    [1] = App.BuiltinCategories.Distance,
-                }.Append(from filepath
-                         in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly)
-                         select Category.Load(filepath)));
-
-        public IList<Unit> AvailableUnits
-        {
-            get => (IList<Unit>)GetValue(AvailableUnitsProperty);
+            get => (IReadOnlyList<Unit>)GetValue(AvailableUnitsProperty);
             set => SetValue(AvailableUnitsProperty, value);
         }
 
-        public DependencyProperty AvailableUnitsProperty = AnyDP<IList<Unit>>(nameof(AvailableUnits));
+        public DependencyProperty AvailableUnitsProperty = AnyDP<IReadOnlyList<Unit>>(nameof(AvailableUnits));
 
         private void SetupAnimation(object sender, RoutedEventArgs e)
         {
@@ -109,7 +128,8 @@ namespace Shrekulator
             {
                 sb.Completed += async (o, arg) =>
                 {
-                    await miscText.Dispatcher.InvokeAsync(() => miscText.Text = (queuedMessages.Count > 0 ? queuedMessages.Dequeue() : quotes.SelectRandom()));
+                    var idx = rand.Next(0, quotes.Count);
+                    await miscText.Dispatcher.InvokeAsync(() => miscText.Text = (queuedMessages.Count > 0 ? queuedMessages.Dequeue() : quotes[idx]));
                     sb.Begin(miscText);
                 };
 
@@ -122,22 +142,32 @@ namespace Shrekulator
             if (sender is ComboBox categorySelection &&
                 categorySelection.SelectedValue is Category value)
             {
-                MessageBox.Show($"{value.Name} - {value.Units.Count} Units");
-
-                foreach (var unit in value.Units)
-                {
-                    MessageBox.Show($"{unit.Name}\n{unit.Symbol}\n{unit.Value}");
-                }
+                AvailableUnits = value.Units;
             }
         }
 
         private void UnitChanged(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show(nameof(UnitChanged));
-
-            if (sender is ComboBox unitSelection &&
-                unitSelection.SelectedValue is Unit value)
+            if (sender is ComboBox unitSelection)
             {
+                if (unitSelection.SelectedValue is Unit value)
+                {
+                    MessageBox.Show(value.Name);
+                }
+                else
+                {
+                    unitSelection.SelectedIndex = 0;
+                }
+            }
+        }
+
+        private void LoadCategories(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox categorySelection)
+            {
+                categorySelection.DisplayMemberPath = nameof(Category.Name);
+                categorySelection.ItemsSource = new List<Category>(from file in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly) select Category.Parse(File.ReadAllText(file)));
+                categorySelection.SelectedIndex = 0;
             }
         }
     }

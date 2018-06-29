@@ -23,9 +23,7 @@ namespace Shrekulator
 {
     using System;
     using System.IO;
-    using System.Linq;
     using System.Runtime.CompilerServices;
-    using static Helpers;
 
     internal static class Ex
     {
@@ -39,8 +37,6 @@ namespace Shrekulator
             public const string INV_OP = "Method call is not allowed in current state";
         }
 
-        private const string Auto = "";
-
         internal static string ToString<T>(string message, string caller, string file, int line) where T : Exception
             => $"{nameof(T)} at {caller} ({Path.GetFileName(file)}:{line})\n\n{message}";
 
@@ -50,8 +46,8 @@ namespace Shrekulator
         public static ArgumentNullException ArgNull(
             string param,
             string message = DefaultMessages.ARG_NULL,
-            [CallerMemberName] string caller = Auto,
-            [CallerFilePath] string file = Auto,
+            [CallerMemberName] string caller = Helpers.Empty,
+            [CallerFilePath] string file = Helpers.Empty,
             [CallerLineNumber] int line = 0,
             bool silent = false,
             params string[] notes)
@@ -60,7 +56,7 @@ namespace Shrekulator
 
             if (!silent)
             {
-                Log(msg, notes.Prepend(param) as string[]);
+                Helpers.Log(msg, notes);
             }
 
             return new ArgumentNullException(param, msg);
@@ -69,8 +65,8 @@ namespace Shrekulator
         public static ArgumentException ArgInvalid(
             string param,
             string message = DefaultMessages.ARG_INV,
-            [CallerMemberName] string caller = Auto,
-            [CallerFilePath] string file = Auto,
+            [CallerMemberName] string caller = Helpers.Empty,
+            [CallerFilePath] string file = Helpers.Empty,
             [CallerLineNumber] int line = 0,
             bool silent = false,
             params string[] notes)
@@ -79,7 +75,7 @@ namespace Shrekulator
 
             if (!silent)
             {
-                Log(msg, notes.Prepend(param) as string[]);
+                Helpers.Log(msg, notes);
             }
 
             return new ArgumentException(msg, param);
@@ -87,8 +83,8 @@ namespace Shrekulator
 
         public static FormatException FormErr(
             string message = DefaultMessages.FORM_ERR,
-            [CallerMemberName] string caller = Auto,
-            [CallerFilePath] string file = Auto,
+            [CallerMemberName] string caller = Helpers.Empty,
+            [CallerFilePath] string file = Helpers.Empty,
             [CallerLineNumber] int line = 0,
             bool silent = false,
             params string[] notes)
@@ -97,7 +93,7 @@ namespace Shrekulator
 
             if (!silent)
             {
-                Log(msg, notes);
+                Helpers.Log(msg, notes);
             }
 
             return new FormatException(msg);
@@ -106,8 +102,8 @@ namespace Shrekulator
         public static FileNotFoundException NoFile(
             string path,
             string message = DefaultMessages.NO_FILE,
-            [CallerMemberName] string caller = Auto,
-            [CallerFilePath] string file = Auto,
+            [CallerMemberName] string caller = Helpers.Empty,
+            [CallerFilePath] string file = Helpers.Empty,
             [CallerLineNumber] int line = 0,
             bool silent = false,
             params string[] notes)
@@ -116,7 +112,7 @@ namespace Shrekulator
 
             if (!silent)
             {
-                Log(msg, notes.Prepend(path) as string[]);
+                Helpers.Log(msg, notes);
             }
 
             return new FileNotFoundException(msg, path);
@@ -124,8 +120,8 @@ namespace Shrekulator
 
         public static NotImplementedException NoImpl(
             string message = DefaultMessages.NO_IMPL,
-            [CallerMemberName] string caller = Auto,
-            [CallerFilePath] string file = Auto,
+            [CallerMemberName] string caller = Helpers.Empty,
+            [CallerFilePath] string file = Helpers.Empty,
             [CallerLineNumber] int line = 0,
             bool silent = false,
             params string[] notes)
@@ -134,7 +130,7 @@ namespace Shrekulator
 
             if (!silent)
             {
-                Log(msg, notes);
+                Helpers.Log(msg, notes);
             }
 
             return new NotImplementedException(msg);
@@ -142,8 +138,8 @@ namespace Shrekulator
 
         public static InvalidOperationException InvOp(
             string message = DefaultMessages.INV_OP,
-            [CallerMemberName] string caller = Auto,
-            [CallerFilePath] string file = Auto,
+            [CallerMemberName] string caller = Helpers.Empty,
+            [CallerFilePath] string file = Helpers.Empty,
             [CallerLineNumber] int line = 0,
             bool silent = false,
             params string[] notes)
@@ -152,7 +148,7 @@ namespace Shrekulator
 
             if (!silent)
             {
-                Log(msg, notes);
+                Helpers.Log(msg, notes);
             }
 
             return new InvalidOperationException(msg);

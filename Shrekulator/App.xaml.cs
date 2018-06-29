@@ -22,37 +22,11 @@
 namespace Shrekulator
 {
     using System.Windows;
-    using static Helpers;
 
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {
-        internal static class BuiltinCategories
-        {
-            private const string PostFmt = "{0}{2}";
-
-            public static Category Time { get; }
-                = new Category(
-                    "Zeit",
-                    List.Of(
-                        new Unit("Millisekunden", "ms", 95 * 60 * 1000, PostFmt),
-                        new Unit("Sekunden", "sec", 95 * 60, PostFmt),
-                        new Unit("Minuten", "min", 95, PostFmt),
-                        new Unit("Stunden", "h", 95 / 60, PostFmt),
-                        new Unit("Tage", "d", 95 / 60 / 24, PostFmt),
-                        new Unit("Wochen", "w", 95 / 60 / 24 / 7, PostFmt),
-                        new Unit("Monate", "m", 95 / 60 / 24 / 7 / 4, PostFmt),
-                        new Unit("Jahre", "a", 95 / 60 / 24 / 7 / 4 / 12, PostFmt)
-                    ));
-
-            public static Category Distance { get; }
-                = new Category(
-                    "Entfernung",
-                    List.Of(
-                        new Unit("Fuß", "\"", 8.0m, PostFmt)
-                    ));
-        }
     }
 }

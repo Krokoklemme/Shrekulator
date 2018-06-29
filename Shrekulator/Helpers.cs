@@ -23,15 +23,14 @@ namespace Shrekulator
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
     using System.Linq;
     using System.Windows;
 
     internal static class Helpers
     {
-        internal static class List
-        {
-            public static List<TType> Of<TType>(params TType[] range) => new List<TType>(range);
-        }
+        public const string Empty = "";
 
         private static Random _rand;
 
@@ -39,69 +38,40 @@ namespace Shrekulator
 
         public static TType SelectRandom<TType>(this IReadOnlyList<TType> obj) => obj[Rand.Next(0, obj.Count - 1)];
 
-        public static ICollection<TType> Append<TType>(this ICollection<TType> obj, TType item)
-        {
-            obj.Add(item);
-            return obj;
-        }
-
-        public static ICollection<TType> Append<TType>(this ICollection<TType> obj, IEnumerable<TType> range)
-        {
-            foreach (var item in range)
-            {
-                obj.Add(item);
-            }
-
-            return obj;
-        }
-
-        public static ICollection<TType> Prepend<TType>(this ICollection<TType> obj, TType item)
-        {
-            var buffer = new List<TType>(obj.Count() + 1)
-            {
-                [0] = item
-            };
-
-            buffer.AddRange(obj);
-
-            return buffer;
-        }
-
-        public static ICollection<TType> Prepend<TType>(this ICollection<TType> obj, IEnumerable<TType> range)
-        {
-            var buffer = new List<TType>(obj.Count() + range.Count());
-
-            buffer.AddRange(range);
-            buffer.AddRange(obj);
-
-            return buffer;
-        }
-
-        public static string SanitizeCasing(this string @this) =>
-            @this.Split(' ')
-                        .Select(
-                            str => str
-                                .Substring(1)
-                                .ToLowerInvariant()
-                                .Insert(0, str[0]
-                                    .ToString()
-                                    .ToUpperInvariant()
-                                )
-                            )
-                        .Aggregate(string.Empty, (lhs, rhs) => string.Concat(lhs, " ", rhs));
+        //public static string SanitizeCasing(this string @this) =>
+        //    @this.Split(' ')
+        //                .Select(
+        //                    str => str
+        //                        .Substring(1)
+        //                        .ToLowerInvariant()
+        //                        .Insert(0, str[0]
+        //                            .ToString()
+        //                            .ToUpperInvariant()
+        //                        )
+        //                    )
+        //                .Aggregate(string.Empty, (lhs, rhs) => string.Concat(lhs, " ", rhs));
 
         public static void Log(string text, params string[] notes)
         {
-            Console.Error.WriteLine($"[{DateTime.UtcNow}] ::: {text}");
+            var time = DateTime.Now;
+            var log = $"Log_{time.ToString("yyyy_MM_dd")}.txt";
 
-            if (notes.Length > 0)
+            using (var writer = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, log), true, Encoding.UTF8)
             {
+                AutoFlush = false,
+                NewLine = "\n",
+            })
+            {
+                writer.WriteLine($"[{time.ToString("hh:mm:ss")}] {text}");
+
                 foreach (var line in notes)
                 {
-                    Console.Error.WriteLine($"\t{line}");
+                    writer.Write("    - ");
+                    writer.WriteLine(line);
                 }
 
-                Console.Error.WriteLine();
+                writer.WriteLine();
+                writer.Flush();
             }
         }
 

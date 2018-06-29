@@ -44,7 +44,7 @@ For more information, please refer to<https://unlicense.org>
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Stretch">
-            <ComboBox MinWidth="100" SelectionChanged="CategoryChanged" DisplayMemberPath="Name" ItemsSource="{Binding LoadedCategories, Mode=OneTime}" />
+            <ComboBox MinWidth="100" SelectionChanged="CategoryChanged" DisplayMemberPath="Name" Loaded="LoadCategories" />
             <Label Content="{Binding CoinTickerText}" Foreground="LightGreen" />
         </StackPanel>
 
@@ -73,12 +73,7 @@ For more information, please refer to<https://unlicense.org>
             <Button Grid.Row="1" Grid.Column="0" Content="Tauschen" HorizontalAlignment="Center" />
             <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="100"
                       DisplayMemberPath="Name"
-                      ItemsSource="{Binding AvailableUnits}" SelectionChanged="UnitChanged">
-                <ComboBoxItem Content="hi" />
-                <ComboBoxItem Content="hi" />
-                <ComboBoxItem Content="hi" />
-                <ComboBoxItem Content="hi" />
-            </ComboBox>
+                      ItemsSource="{Binding AvailableUnits, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="UnitChanged" SelectedIndex="0" />
 
             <Label Content="{Binding ResultText}"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="17" Foreground="DarkRed" HorizontalAlignment="Center" />
         </Grid>
