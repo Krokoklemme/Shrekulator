@@ -44,8 +44,7 @@ For more information, please refer to<https://unlicense.org>
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Stretch">
-            <ComboBox MinWidth="100" SelectionChanged="CategoryChanged" DisplayMemberPath="Name" Loaded="LoadCategories" />
-            <Label Content="{Binding CoinTickerText}" Foreground="LightGreen" />
+            <ComboBox MinWidth="100" SelectionChanged="CategoryChanged" DisplayMemberPath="Name" ItemsSource="{Binding AvailableCategories, Mode=OneTime}" />
         </StackPanel>
 
         <Label DockPanel.Dock="Bottom"
@@ -67,15 +66,15 @@ For more information, please refer to<https://unlicense.org>
 
             <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
                 <Label Content="Menge" />
-                <TextBox Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Helvetica" TextChanged="InputTextChanged" />
             </DockPanel>
 
-            <CheckBox Grid.Row="1" Grid.Column="0" Content="Zu Shreks" IsChecked="{Binding ShrekMode}" HorizontalAlignment="Center" />
+            <CheckBox Grid.Row="1" Grid.Column="0" Content="Shrek Mode" IsChecked="{Binding ShrekMode}" Checked="ModeChanged" Unchecked="ModeChanged" HorizontalAlignment="Center" />
             <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="100"
                       DisplayMemberPath="Name"
-                      ItemsSource="{Binding AvailableUnits, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="UnitChanged" SelectedIndex="0" />
+                      ItemsSource="{Binding AvailableUnits, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" SelectedValue="{Binding SelectedUnit}" SelectionChanged="UnitChanged" SelectedIndex="0" />
 
-            <Label Content="{Binding ResultText}"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="17" Foreground="DarkRed" HorizontalAlignment="Center" />
+            <Label Content="{Binding ResultText, UpdateSourceTrigger=PropertyChanged}" FontFamily="Helvetica" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="17" Foreground="DarkRed" HorizontalAlignment="Center" />
         </Grid>
     </DockPanel>
 </Window>

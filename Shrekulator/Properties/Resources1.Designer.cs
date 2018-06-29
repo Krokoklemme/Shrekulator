@@ -81,6 +81,16 @@ namespace Shrekulator.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] DistanceCategory {
+            get {
+                object obj = ResourceManager.GetObject("DistanceCategory", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This is the part where you run away!
         ///If that was me, you&apos;d be dead.
         ///I like that boulder. That is a nice boulder.
@@ -107,6 +117,16 @@ namespace Shrekulator.Properties {
         internal static byte[] ShrekFont {
             get {
                 object obj = ResourceManager.GetObject("ShrekFont", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TimeCategory {
+            get {
+                object obj = ResourceManager.GetObject("TimeCategory", resourceCulture);
                 return ((byte[])(obj));
             }
         }

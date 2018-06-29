@@ -28,6 +28,73 @@ namespace Shrekulator
     public class Category
     {
         /// <summary>
+        /// Represents a unit of a <see cref="Category"/>
+        /// </summary>
+        public struct Unit
+        {
+            /// <summary>
+            /// Display name of the <see cref="Unit"/>
+            /// </summary>
+            public string Name { get; }
+
+            /// <summary>
+            /// Scientific symbol, intended for user-display
+            /// </summary>
+            public string Symbol { get; }
+
+            /// <summary>
+            /// Value of a single Shrek
+            /// </summary>
+            public decimal Value { get; }
+
+            /// <summary>
+            /// Format string to be used in <see cref="ToString(decimal)"/>
+            /// </summary>
+            public string Format { get; }
+
+            /// <summary>
+            /// Formats <paramref name="amount"/> according to <see cref="Format"/>
+            /// </summary>
+            /// <param name="amount">The amount to format</param>
+            /// <returns><paramref name="amount"/> stringified according to <see cref="Format"/></returns>
+            public string ToString(decimal amount) => string.Format(Format, amount, Name, Symbol);
+
+            /// <summary>
+            /// Converts from and to Shrek's
+            /// </summary>
+            /// <param name="amount">Value to convert</param>
+            /// <param name="shrekmode">Indicates, whether it should convert from or to Shrek's</param>
+            /// <returns>The converted value</returns>
+            public decimal Convert(decimal amount, bool shrekmode = true)
+            {
+                if (!shrekmode)
+                {
+                    return amount * Value;
+                }
+                else
+                {
+                    var value = 1m / Value;
+                    return amount * value;
+                }
+            }
+
+            /// <summary>
+            /// Constructs a new <see cref="Unit"/> object
+            /// </summary>
+            /// <param name="name">The <see cref="Name"/> of the unit</param>
+            /// <param name="symbol">The <see cref="Symbol"/> of the unit</param>
+            /// <param name="value">The <see cref="Value"/> of the unit</param>
+            /// <param name="format">The <see cref="Format"/> of the unit</param>
+            public Unit(string name, string symbol, decimal value, string format)
+            {
+                Name = name ?? throw Ex.ArgNull(nameof(name));
+                Symbol = symbol ?? throw Ex.ArgNull(nameof(Symbol));
+                Value = value >= decimal.Zero ? value : throw Ex.ArgInvalid(nameof(value), "Unit value may not be negative");
+                Format = format ?? throw Ex.ArgNull(nameof(format));
+            }
+        }
+
+        /// <summary>
         /// The name of the category
         /// </summary>
         public string Name { get; }
@@ -95,14 +162,24 @@ namespace Shrekulator
                     }
                     else
                     {
-                        throw Ex.FormErr();
+                        throw Ex.FormErr(notes: new[] {
+                            "Unit must consist of four fields",
+                            $"{nameof(Unit.Name)}: String",
+                            $"{nameof(Unit.Symbol)}: String",
+                            $"{nameof(Unit.Value)}: Number",
+                            $"{nameof(Unit.Format)}: String",
+                        });
                     }
                 }
 
                 return new Category(name, units);
             }
 
-            throw Ex.FormErr();
+            throw Ex.FormErr(notes: new[] {
+                "Definition file must consist of two fields",
+                $"{nameof(Name)}: String",
+                $"{nameof(Units)}: Array",
+            });
         }
     }
 }

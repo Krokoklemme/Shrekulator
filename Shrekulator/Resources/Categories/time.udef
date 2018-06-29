@@ -1,0 +1,41 @@
+{
+  "Name": "Zeit",
+  "Units": [
+    {
+      "Name": "Millisekunden",
+      "Symbol": "ms",
+      "Value": 5700000,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Sekunden",
+      "Symbol": "sek",
+      "Value": 5700,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Minuten",
+      "Symbol": "min",
+      "Value": 95,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Stunden",
+      "Symbol": "h",
+      "Value": 1.58333,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Tage",
+      "Symbol": "d",
+      "Value": 0.0659722,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Wochen",
+      "Symbol": "w",
+      "Value": 0.0094246,
+      "Format": "{0:f5}{2}"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "Name": "Entfernung",
+  "Units": [
+    {
+      "Name": "Zoll",
+      "Symbol": "\"",
+      "Value": 96,
+      "Format": "{0:f5}{1}"
+    },
+    {
+      "Name": "Fuß",
+      "Symbol": "'",
+      "Value": 8,
+      "Format": "{0:f5}{1}"
+    },
+    {
+      "Name": "Yard",
+      "Symbol": "yd",
+      "Value": 2.66667,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Meilen",
+      "Symbol": "ml",
+      "Value": 0.00151515,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Millimeter",
+      "Symbol": "mm",
+      "Value": 2438.4,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Zentimeter",
+      "Symbol": "cm",
+      "Value": 243.84,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Meter",
+      "Symbol": "m",
+      "Value": 2.4384,
+      "Format": "{0:f5}{2}"
+    },
+    {
+      "Name": "Kilometer",
+      "Symbol": "km",
+      "Value": 0.0024384,
+      "Format": "{0:f5}{2}"
+    }
+  ]
+}

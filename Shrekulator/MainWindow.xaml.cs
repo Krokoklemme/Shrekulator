@@ -28,7 +28,8 @@ namespace Shrekulator
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media.Animation;
-    using System.Windows.Threading;
+    using static Category;
+    using static System.Text.Encoding;
     using static Helpers.DPBuilder<MainWindow>;
 
     /// <summary>
@@ -38,66 +39,16 @@ namespace Shrekulator
     {
         private const string PostFmt = "{0} {2}";
 
-        private readonly Unit Shrek = new Unit("Shrek", "Shrek(s)", 1m, PostFmt);
-
         private readonly IReadOnlyList<string> quotes = Properties.Resources.Quotes.Split('\n');
 
         private readonly Queue<string> queuedMessages = new Queue<string>();
 
         private readonly Random rand = new Random();
 
-        private readonly DispatcherTimer timer = new DispatcherTimer(TimeSpan.FromMinutes(1.0), DispatcherPriority.Background, (o, e) => { }, Application.Current.Dispatcher)
-        {
-            IsEnabled = true
-        };
-
-        //private Category[] arr = new[]
-        //{
-        //        new Category(
-        //             "Zeit",
-        //             new List<Unit>
-        //             {
-        //                 new Unit("Millisekunden", "ms", 95 * 60 * 1000, PostFmt),
-        //                 new Unit("Sekunden", "sec", 95 * 60, PostFmt),
-        //                 new Unit("Minuten", "min", 95, PostFmt),
-        //                 new Unit("Stunden", "h", 95 / 60, PostFmt),
-        //                 new Unit("Tage", "d", 95 / 60 / 24, PostFmt),
-        //                 new Unit("Wochen", "w", 95 / 60 / 24 / 7, PostFmt),
-        //                 new Unit("Monate", "m", 95 / 60 / 24 / 7 / 4, PostFmt),
-        //                 new Unit("Jahre", "a", 95 / 60 / 24 / 7 / 4 / 12, PostFmt)
-        //             }),
-
-        //         new Category(
-        //            "Entfernung",
-        //            new List<Unit>
-        //            {
-        //                // Imperial Units, Shrek is considered to be 8 foot tall
-        //                // so that's what we'll be using as a baseunit
-        //                new Unit("Zoll", "'", 8 * 12, PostFmt),
-        //                new Unit("Fuß", "\"", 8, PostFmt),
-        //                new Unit("Yard", "yd", 8 / 3, PostFmt),
-        //                new Unit("Meile", "mile", 8 / 3 / 1760, PostFmt),
-
-        //                // Metric units
-        //                new Unit("Millimeter", "mm", 8 * 30.48m * 1000, PostFmt),
-        //                new Unit("Zentimeter", "cm", 8 * 30.48m, PostFmt),
-        //                new Unit("Meter", "cm", 8 * 30.48m / 100, PostFmt),
-        //                new Unit("Kilometer", "cm", 8 * 30.48m / 100 / 1000, PostFmt),
-        //            }),
-        //};
-
         public MainWindow()
         {
             InitializeComponent();
         }
-
-        public string CoinTickerText
-        {
-            get => (string)GetValue(CoinTickerTextProperty);
-            set => SetValue(CoinTickerTextProperty, value);
-        }
-
-        public DependencyProperty CoinTickerTextProperty = StringDP(nameof(CoinTickerText), "Fetching value...");
 
         public string InputText
         {
@@ -105,7 +56,7 @@ namespace Shrekulator
             set => SetValue(InputTextProperty, value);
         }
 
-        public DependencyProperty InputTextProperty = StringDP(nameof(InputText));
+        public DependencyProperty InputTextProperty = StringDP(nameof(InputText), string.Empty);
 
         public string ResultText
         {
@@ -114,6 +65,25 @@ namespace Shrekulator
         }
 
         public DependencyProperty ResultTextProperty = StringDP(nameof(ResultText));
+
+        public IReadOnlyList<Category> AvailableCategories
+        {
+            get => (IReadOnlyList<Category>)GetValue(AvailableCategoriesProperty);
+            set => SetValue(AvailableCategoriesProperty, value);
+        }
+
+        public DependencyProperty AvailableCategoriesProperty = AnyDP<IReadOnlyList<Category>>(nameof(AvailableCategories),
+            new List<Category>(
+                    new[]
+                    {
+                        Parse(UTF8.GetString(Properties.Resources.DistanceCategory)),
+                        Parse(UTF8.GetString(Properties.Resources.TimeCategory)),
+                    }
+                    .Concat(
+                        from file
+                        in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly)
+                        select Parse(File.ReadAllText(file)))
+                    .Distinct()));
 
         public IReadOnlyList<Unit> AvailableUnits
         {
@@ -131,6 +101,14 @@ namespace Shrekulator
 
         public DependencyProperty ShrekModeProperty = BoolDP(nameof(ShrekMode), true);
 
+        public Unit SelectedUnit
+        {
+            get => (Unit)GetValue(SelectedUnitProperty);
+            set => SetValue(SelectedUnitProperty, value);
+        }
+
+        public DependencyProperty SelectedUnitProperty = AnyDP<Unit>(nameof(SelectedUnit));
+
         private void SetupAnimation(object sender, RoutedEventArgs e)
         {
             if (sender is TextBlock miscText &&
@@ -147,12 +125,35 @@ namespace Shrekulator
             }
         }
 
+        private void ModeChanged(object sender, RoutedEventArgs e) => UpdateResultText();
+
+        private void UpdateResultText()
+        {
+            if (InputText != string.Empty)
+            {
+                if (decimal.TryParse(InputText, out var result))
+                {
+                    var value = SelectedUnit.Convert(result, ShrekMode);
+                    ResultText = SelectedUnit.ToString(value);
+                }
+                else
+                {
+                    ResultText = "Invalid input!";
+                }
+            }
+            else
+            {
+                ResultText = string.Empty;
+            }
+        }
+
         private void CategoryChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is ComboBox categorySelection &&
                 categorySelection.SelectedValue is Category value)
             {
                 AvailableUnits = value.Units;
+                SelectedUnit = AvailableUnits[0];
             }
         }
 
@@ -162,6 +163,7 @@ namespace Shrekulator
             {
                 if (unitSelection.SelectedValue is Unit value)
                 {
+                    UpdateResultText();
                 }
                 else
                 {
@@ -175,9 +177,11 @@ namespace Shrekulator
             if (sender is ComboBox categorySelection)
             {
                 categorySelection.DisplayMemberPath = nameof(Category.Name);
-                categorySelection.ItemsSource = new List<Category>(from file in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.udef", SearchOption.TopDirectoryOnly) select Category.Parse(File.ReadAllText(file)));
+                categorySelection.ItemsSource = new List<Category>();
                 categorySelection.SelectedIndex = 0;
             }
         }
+
+        private void InputTextChanged(object sender, TextChangedEventArgs e) => UpdateResultText();
     }
 }
