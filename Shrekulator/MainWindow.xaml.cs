@@ -38,6 +38,8 @@ namespace Shrekulator
     {
         private const string PostFmt = "{0} {2}";
 
+        private readonly Unit Shrek = new Unit("Shrek", "Shrek(s)", 1m, PostFmt);
+
         private readonly IReadOnlyList<string> quotes = Properties.Resources.Quotes.Split('\n');
 
         private readonly Queue<string> queuedMessages = new Queue<string>();
@@ -121,6 +123,14 @@ namespace Shrekulator
 
         public DependencyProperty AvailableUnitsProperty = AnyDP<IReadOnlyList<Unit>>(nameof(AvailableUnits));
 
+        public bool ShrekMode
+        {
+            get => (bool)GetValue(ShrekModeProperty);
+            set => SetValue(ShrekModeProperty, value);
+        }
+
+        public DependencyProperty ShrekModeProperty = BoolDP(nameof(ShrekMode), true);
+
         private void SetupAnimation(object sender, RoutedEventArgs e)
         {
             if (sender is TextBlock miscText &&
@@ -152,7 +162,6 @@ namespace Shrekulator
             {
                 if (unitSelection.SelectedValue is Unit value)
                 {
-                    MessageBox.Show(value.Name);
                 }
                 else
                 {

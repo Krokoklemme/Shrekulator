@@ -22,21 +22,13 @@
 namespace Shrekulator
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Text;
-    using System.Linq;
     using System.Windows;
 
     internal static class Helpers
     {
         public const string Empty = "";
-
-        private static Random _rand;
-
-        public static Random Rand => _rand ?? (_rand = new Random());
-
-        public static TType SelectRandom<TType>(this IReadOnlyList<TType> obj) => obj[Rand.Next(0, obj.Count - 1)];
 
         //public static string SanitizeCasing(this string @this) =>
         //    @this.Split(' ')
@@ -62,7 +54,7 @@ namespace Shrekulator
                 NewLine = "\n",
             })
             {
-                writer.WriteLine($"[{time.ToString("hh:mm:ss")}] {text}");
+                writer.WriteLine($"[{time.ToString("hh:mm:ss")}]: {text}");
 
                 foreach (var line in notes)
                 {

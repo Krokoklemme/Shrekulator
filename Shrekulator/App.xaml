@@ -46,6 +46,7 @@ For more information, please refer to<https://unlicense.org>
         <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="Slider" />
         <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="Label" />
         <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="Button" />
+        <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="CheckBox" />
         <Style BasedOn="{StaticResource {x:Type Control}}" TargetType="TextBox" />
 
         <ImageBrush x:Key="BackgroundImage" Stretch="UniformToFill">
