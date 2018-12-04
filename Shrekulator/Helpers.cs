@@ -25,19 +25,6 @@ namespace Shrekulator
     {
         public const string Empty = "";
 
-        //public static string SanitizeCasing(this string @this) =>
-        //    @this.Split(' ')
-        //                .Select(
-        //                    str => str
-        //                        .Substring(1)
-        //                        .ToLowerInvariant()
-        //                        .Insert(0, str[0]
-        //                            .ToString()
-        //                            .ToUpperInvariant()
-        //                        )
-        //                    )
-        //                .Aggregate(string.Empty, (lhs, rhs) => string.Concat(lhs, " ", rhs));
-
         public static void Log(string text, params string[] notes)
         {
             var time = DateTime.Now;
